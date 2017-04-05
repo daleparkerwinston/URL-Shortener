@@ -9,16 +9,19 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 mongoose.connect(config.getDbConnectionString());
-app.use('/', express.static(`${__dirname}/public`));
+
+app.use(express.static(`${__dirname}/public`));
+
 app.get('/:shortUrl', (req, res) => {
-  Url.findOne({shortUrl:req.params.shortUrl}, (err, url) => {
+  Url.findOneAndUpdate({shortUrl: req.params.shortUrl}, {$inc: {clicks: 1}}, (err, url) => {
     if (url) {
       res.redirect(url.originalUrl);
     } else {
       res.redirect(config.getWebHost());
     }
-  })
+  });
 });
+
 app.use('/api/url', urlRoutes());
 
 app.listen(port);
